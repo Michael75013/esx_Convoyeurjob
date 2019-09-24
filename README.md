@@ -1,16 +1,18 @@
-# esx_bankerjob
+# esx_convoyeurjob
 
 ## Requirements
 
 - [cron](https://github.com/ESX-Org/cron)
 - [esx_addonaccount](https://github.com/ESX-Org/esx_addonaccount)
+- [esx_addoninventory](https://github.com/ESX-Org/esx_addoninventory)
+- [esx_datastore](https://github.com/ESX-Org/esx_datastore)
 - [esx_society](https://github.com/ESX-Org/esx_society)
 
 ## Download & Installation
 
 ### Using [fvm](https://github.com/qlaffont/fvm-installer)
 ```
-fvm install --save --folder=esx esx-org/esx_bankerjob
+fvm install --save --folder=esx esx-org/esx_convoyeurjob
 ```
 
 ### Using Git
@@ -19,21 +21,17 @@ cd resources
 git clone https://github.com/ESX-Org/esx_bankerjob [esx]/esx_bankerjob
 ```
 
-### Manually
-- Download https://github.com/ESX-Org/esx_bankerjob/archive/master.zip
-- Put it in the `[esx]` directory
-
 ## Installation
-- Import `esx_bankerjob.sql` in your database
+- Import `esx_convoyeurjob.sql` in your database
 - Add this in your `server.cfg`:
 
 ```
-start esx_bankerjob
+start esx_convoyeurjob
 ```
 
 # Legal
 ### License
-esx_bankerjob - bank script
+esx_convoyeurjob - convoyeur script
 
 Copyright (C) 2015-2018 Jérémie N'gadi
 
