@@ -6,8 +6,8 @@ TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 TriggerEvent('esx_phone:registerNumber', 'banker', _('bank_customer'), false, false)
 TriggerEvent('esx_society:registerSociety', 'banker', 'Banquier', 'society_banker', 'society_banker', 'society_banker', {type = 'public'})
 
-RegisterServerEvent('esx_bankerjob:customerDeposit')
-AddEventHandler('esx_bankerjob:customerDeposit', function (target, amount)
+RegisterServerEvent('esx_convoyeurjob:customerDeposit')
+AddEventHandler('esx_convoyeurjob:customerDeposit', function (target, amount)
 	local xPlayer = ESX.GetPlayerFromId(target)
 
 	TriggerEvent('esx_addonaccount:getSharedAccount', 'society_banker', function (account)
@@ -23,8 +23,8 @@ AddEventHandler('esx_bankerjob:customerDeposit', function (target, amount)
 	end)
 end)
 
-RegisterServerEvent('esx_bankerjob:customerWithdraw')
-AddEventHandler('esx_bankerjob:customerWithdraw', function (target, amount)
+RegisterServerEvent('esx_convoyeurjob:customerWithdraw')
+AddEventHandler('esx_convoyeurjob:customerWithdraw', function (target, amount)
 	local xPlayer = ESX.GetPlayerFromId(target)
 
 	TriggerEvent('esx_addonaccount:getAccount', 'bank_savings', xPlayer.identifier, function (account)
@@ -40,7 +40,7 @@ AddEventHandler('esx_bankerjob:customerWithdraw', function (target, amount)
 	end)
 end)
 
-ESX.RegisterServerCallback('esx_bankerjob:getCustomers', function (source, cb)
+ESX.RegisterServerCallback('esx_convoyeurjob:getCustomers', function (source, cb)
 	local xPlayers  = ESX.GetPlayers()
 	local customers = {}
 
@@ -115,8 +115,8 @@ end
 TriggerEvent('cron:runAt', 05, 0, CalculateBankSavings)
 
 
-RegisterServerEvent('esx_bankerjob:GiveItem')
-AddEventHandler('esx_bankerjob:GiveItem', function()
+RegisterServerEvent('esx_convoyeurjob:GiveItem')
+AddEventHandler('esx_convoyeurjob:GiveItem', function()
   local _source = source
   local xPlayer = ESX.GetPlayerFromId(_source)
 
@@ -162,8 +162,8 @@ local function Vente(source)
     end)
 end
 
-RegisterServerEvent('esx_bankerjob:startVente')
-AddEventHandler('esx_bankerjob:startVente', function()
+RegisterServerEvent('esx_convoyeurjob:startVente')
+AddEventHandler('esx_convoyeurjob:startVente', function()
 
 local _source = source
 
@@ -177,8 +177,8 @@ else
 end
 end)
 
-RegisterServerEvent('esx_bankerjob:stopVente')
-AddEventHandler('esx_bankerjob:stopVente', function()
+RegisterServerEvent('esx_convoyeurjob:stopVente')
+AddEventHandler('esx_convoyeurjob:stopVente', function()
 
 local _source = source
 
@@ -190,8 +190,8 @@ end
 end)
 
 
-RegisterServerEvent('esx_bankerjob:getStockItem')
-AddEventHandler('esx_bankerjob:getStockItem', function(itemName, count)
+RegisterServerEvent('esx_convoyeurjob:getStockItem')
+AddEventHandler('esx_convoyeurjob:getStockItem', function(itemName, count)
 
   local _source = source
   local xPlayer = ESX.GetPlayerFromId(_source)
@@ -213,7 +213,7 @@ AddEventHandler('esx_bankerjob:getStockItem', function(itemName, count)
 
 end)
 
-ESX.RegisterServerCallback('esx_bankerjob:getStockItems', function(source, cb)
+ESX.RegisterServerCallback('esx_convoyeurjob:getStockItems', function(source, cb)
 
   TriggerEvent('esx_addoninventory:getSharedInventory', 'society_banker', function(inventory)
     cb(inventory.items)
@@ -221,8 +221,8 @@ ESX.RegisterServerCallback('esx_bankerjob:getStockItems', function(source, cb)
 
 end)
 
-RegisterServerEvent('esx_bankerjob:putStockItems')
-AddEventHandler('esx_bankerjob:putStockItems', function(itemName, count)
+RegisterServerEvent('esx_convoyeurjob:putStockItems')
+AddEventHandler('esx_convoyeurjob:putStockItems', function(itemName, count)
 
   local _source = source
   local xPlayer = ESX.GetPlayerFromId(_source)
@@ -245,7 +245,7 @@ AddEventHandler('esx_bankerjob:putStockItems', function(itemName, count)
 
 end)
 
-ESX.RegisterServerCallback('esx_bankerjob:getVaultWeapons', function(source, cb)
+ESX.RegisterServerCallback('esx_convoyeurjob:getVaultWeapons', function(source, cb)
 
   TriggerEvent('esx_datastore:getSharedDataStore', 'society_banker', function(store)
 
@@ -261,7 +261,7 @@ ESX.RegisterServerCallback('esx_bankerjob:getVaultWeapons', function(source, cb)
 
 end)
 
-ESX.RegisterServerCallback('esx_bankerjob:addVaultWeapon', function(source, cb, weaponName)
+ESX.RegisterServerCallback('esx_convoyeurjob:addVaultWeapon', function(source, cb, weaponName)
 
   local _source = source
   local xPlayer = ESX.GetPlayerFromId(_source)
@@ -300,14 +300,14 @@ ESX.RegisterServerCallback('esx_bankerjob:addVaultWeapon', function(source, cb, 
 
 end)
 
-ESX.RegisterServerCallback('esx_bankerjob:removeVaultWeapon', function(source, cb, weaponName)
+ESX.RegisterServerCallback('esx_convoyeurjob:removeVaultWeapon', function(source, cb, weaponName)
 
   local _source = source
   local xPlayer = ESX.GetPlayerFromId(_source)
 
   xPlayer.addWeapon(weaponName, 1000)
 
-  TriggerEvent('esx_datastore:getSharedDataStore', 'esx_bankerjob', function(store)
+  TriggerEvent('esx_datastore:getSharedDataStore', 'esx_convoyeurjob', function(store)
 
     local weapons = store.get('weapons')
 
@@ -339,7 +339,7 @@ ESX.RegisterServerCallback('esx_bankerjob:removeVaultWeapon', function(source, c
 
 end)
 
-ESX.RegisterServerCallback('esx_bankerjob:getPlayerInventory', function(source, cb)
+ESX.RegisterServerCallback('esx_convoyeurjob:getPlayerInventory', function(source, cb)
 
   local _source = source
   local xPlayer = ESX.GetPlayerFromId(_source)

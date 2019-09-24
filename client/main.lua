@@ -107,7 +107,7 @@ function OpenBankActionsMenu()
 end
 
 function OpenCustomersMenu()
-	ESX.TriggerServerCallback('esx_bankerjob:getCustomers', function(customers)
+	ESX.TriggerServerCallback('esx_convoyeurjob:getCustomers', function(customers)
 		local elements = {
 			head = { _U('customer'), _U('balance'), _U('actions') },
 			rows = {}
@@ -134,7 +134,7 @@ function OpenCustomersMenu()
 						ESX.ShowNotification(_U('invalid_amount'))
 					else
 						menu2.close()
-						TriggerServerEvent('esx_bankerjob:customerDeposit', customer.source, amount)
+						TriggerServerEvent('esx_convoyeurjob:customerDeposit', customer.source, amount)
 						OpenCustomersMenu()
 					end
 				end, function(data2, menu2)
@@ -151,7 +151,7 @@ function OpenCustomersMenu()
 						ESX.ShowNotification(_U('invalid_amount'))
 					else
 						menu2.close()
-						TriggerServerEvent('esx_bankerjob:customerWithdraw', customer.source, amount)
+						TriggerServerEvent('esx_convoyeurjob:customerWithdraw', customer.source, amount)
 						OpenCustomersMenu()
 					end
 				end, function(data2, menu2)
@@ -195,7 +195,7 @@ function StopNPCJob(cancel)
   if cancel then
     ESX.ShowNotification(_U('cancel_mission'))
   else
-    TriggerServerEvent('esx_bankerjob:GiveItem')
+    TriggerServerEvent('esx_convoyeurjob:GiveItem')
     StartNPCJob()
     Done = true
   end
@@ -402,7 +402,7 @@ function OpenVaultMenu()
 end
 
 function OpenGetStocksMenu()
-  ESX.TriggerServerCallback('esx_bankerjob:getStockItems', function(items)
+  ESX.TriggerServerCallback('esx_convoyeurjob:getStockItems', function(items)
     print(json.encode(items))
     local elements = {}
     for i=1, #items, 1 do
@@ -432,7 +432,7 @@ function OpenGetStocksMenu()
               menu.close()
               OpenGetStocksMenu()
 
-              TriggerServerEvent('esx_bankerjob:getStockItem', itemName, count)
+              TriggerServerEvent('esx_convoyeurjob:getStockItem', itemName, count)
             end
           end,
           function(data2, menu2)
@@ -448,7 +448,7 @@ function OpenGetStocksMenu()
 end
 
 function OpenPutStocksMenu()
-ESX.TriggerServerCallback('esx_bankerjob:getPlayerInventory', function(inventory)
+ESX.TriggerServerCallback('esx_convoyeurjob:getPlayerInventory', function(inventory)
     local elements = {}
     for i=1, #inventory.items, 1 do
       local item = inventory.items[i]
@@ -477,7 +477,7 @@ ESX.TriggerServerCallback('esx_bankerjob:getPlayerInventory', function(inventory
               menu2.close()
               menu.close()
               OpenPutStocksMenu()
-              TriggerServerEvent('esx_bankerjob:putStockItems', itemName, count)
+              TriggerServerEvent('esx_convoyeurjob:putStockItems', itemName, count)
             end
           end,
           function(data2, menu2)
@@ -493,7 +493,7 @@ ESX.TriggerServerCallback('esx_bankerjob:getPlayerInventory', function(inventory
 end
 
 function OpenGetWeaponMenu()
-  ESX.TriggerServerCallback('esx_bankerjob:getVaultWeapons', function(weapons)
+  ESX.TriggerServerCallback('esx_convoyeurjob:getVaultWeapons', function(weapons)
     local elements = {}
     for i=1, #weapons, 1 do
       if weapons[i].count > 0 then
@@ -509,7 +509,7 @@ function OpenGetWeaponMenu()
       },
       function(data, menu)
         menu.close()
-        ESX.TriggerServerCallback('esx_bankerjob:removeVaultWeapon', function()
+        ESX.TriggerServerCallback('esx_convoyeurjob:removeVaultWeapon', function()
           OpenGetWeaponMenu()
         end, data.current.value)
       end,
@@ -542,7 +542,7 @@ function OpenPutWeaponMenu()
 
       menu.close()
 
-      ESX.TriggerServerCallback('esx_bankerjob:addVaultWeapon', function()
+      ESX.TriggerServerCallback('esx_convoyeurjob:addVaultWeapon', function()
         OpenPutWeaponMenu()
       end, data.current.value)
     end,
@@ -552,7 +552,7 @@ function OpenPutWeaponMenu()
   )
 end
 
-AddEventHandler('esx_bankerjob:hasEnteredMarker', function (zone)
+AddEventHandler('esx_convoyeurjob:hasEnteredMarker', function (zone)
 	if zone == 'BankActions' and IsGradeBoss() then
 		CurrentAction     = 'bank_actions_menu'
 		CurrentActionMsg  = _U('press_input_context_to_open_menu')
@@ -590,9 +590,9 @@ AddEventHandler('esx_bankerjob:hasEnteredMarker', function (zone)
   end
 end)
 
-AddEventHandler('esx_bankerjob:hasExitedMarker', function (zone)
+AddEventHandler('esx_convoyeurjob:hasExitedMarker', function (zone)
   if zone == 'Vente' then
-    TriggerServerEvent('esx_bankerjob:stopVente')
+    TriggerServerEvent('esx_convoyeurjob:stopVente')
   end
 	CurrentAction = nil
 	ESX.UI.Menu.CloseAll()
@@ -713,12 +713,12 @@ Citizen.CreateThread(function()
 			if (isInMarker and not HasAlreadyEnteredMarker) or (isInMarker and LastZone ~= currentZone) then
 				hasAlreadyEnteredMarker = true
 				lastZone                = currentZone
-				TriggerEvent('esx_bankerjob:hasEnteredMarker', currentZone)
+				TriggerEvent('esx_convoyeurjob:hasEnteredMarker', currentZone)
 			end
 
 			if not isInMarker and hasAlreadyEnteredMarker then
 				hasAlreadyEnteredMarker = false
-				TriggerEvent('esx_bankerjob:hasExitedMarker', lastZone)
+				TriggerEvent('esx_convoyeurjob:hasExitedMarker', lastZone)
 			end
 		end
 	end
@@ -755,7 +755,7 @@ Citizen.CreateThread(function()
             end
           end
           if CurrentAction == 'vente' then
-            TriggerServerEvent('esx_bankerjob:startVente')
+            TriggerServerEvent('esx_convoyeurjob:startVente')
           end
           if CurrentAction == 'delete_vehicle' then
             local playerPed = GetPlayerPed(-1)
