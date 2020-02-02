@@ -24,3 +24,7 @@ INSERT INTO `job_grades` (job_name, grade, name, label, salary, skin_male, skin_
 	('banker',3,'viceboss','Banque-Adjoint',1450,'{}','{}'),
 	('banker',4,'boss','Banque-Patron',1800,'{}','{}')
 ;
+
+INSERT INTO `items` (name, label, `limit`) VALUES
+	('sacbillets', '💰 Sac de Billets', 20)
+;
