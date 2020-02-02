@@ -20,4 +20,5 @@ Locales['en'] = {
   ['withdraw_society_money']            = 'withdraw society money',
   ['bank_customer']                     = 'bank Customer',
   ['boss_actions']                      = 'boss Actions',
+  ['not_enough_money']                  = 'Vous n\'avez ~r~pas assez~s~ d\'argent.',
 }

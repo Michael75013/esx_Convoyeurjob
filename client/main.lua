@@ -166,6 +166,45 @@ function OpenCustomersMenu()
 	end)
 end
 
+function OpenBankerDrawerActionsMenu()
+    local elements = {
+      {label = _U('deposit_stock'), value = 'put_drawer_stock'},
+      {label = _U('withdraw_stock'), value = 'get_drawer_stock'},
+      {label = _U('get_weapon'), value = 'get_weapon'},
+      {label = _U('put_weapon'), value = 'put_weapon'}
+    }
+
+    ESX.UI.Menu.CloseAll()
+    ESX.UI.Menu.Open(
+      'default', GetCurrentResourceName(), 'banker_Drawer',
+      {
+        title    = 'Tiroir du Shop',
+        elements = elements
+      },
+      function(data, menu)
+        if data.current.value == 'put_drawer_stock' then
+          OpenPutDrawerStocksMenu()
+        end
+        if data.current.value == 'get_drawer_stock' then
+          OpenGetDrawerStocksMenu()
+        end
+        if data.current.value == 'get_weapon' then
+          OpenGetWeaponMenu()
+        end
+        if data.current.value == 'put_weapon' then
+          OpenPutWeaponMenu()
+        end
+      end,
+      function(data, menu)
+        menu.close()
+        CurrentAction     = 'banker_drawer_actions_menu'
+        CurrentActionMsg  = _U('open_drawer_actions')
+        CurrentActionData = {}
+      end
+    )
+  end
+
+
 -- NPC MISSIONS
 
 function SelectDAB()
@@ -262,7 +301,7 @@ function CloakRoomMenu()
                     SetModelAsNoLongerNeeded(model)
                     TriggerEvent('skinchanger:loadSkin', skin)
                     TriggerEvent('esx:restoreLoadout')
-                    TriggerServerEvent('duty:banker') -- Mise hors service quand on se remet en vêtements civiles.
+                    --TriggerServerEvent('duty:banker') -- Mise hors service quand on se remet en vêtements civiles.
 
                     local playerPed = GetPlayerPed(-1)
                     ClearPedBloodDamage(playerPed)
@@ -359,80 +398,38 @@ end
 )
 end
 
-function OpenVaultMenu()
-  if Config.EnableVaultManagement then
-    local elements = {
-      {label = _U('get_weapon'), value = 'get_weapon'},
-      {label = _U('put_weapon'), value = 'put_weapon'},
-      {label = _U('get_object'), value = 'get_stock'},
-      {label = _U('put_object'), value = 'put_stock'}
-    }   
-    ESX.UI.Menu.CloseAll()
-
-    ESX.UI.Menu.Open(
-      'default', GetCurrentResourceName(), 'vault',
-      {
-        title    = _U('vault'),
-        align    = 'top-left',
-        elements = elements,
-      },
-      function(data, menu)
-
-        if data.current.value == 'get_weapon' then
-          OpenGetWeaponMenu()
-        end
-        if data.current.value == 'put_weapon' then
-          OpenPutWeaponMenu()
-        end
-        if data.current.value == 'put_stock' then
-           OpenPutStocksMenu()
-        end
-        if data.current.value == 'get_stock' then
-           OpenGetStocksMenu()
-        end
-      end,      
-      function(data, menu)
-        menu.close()
-        CurrentAction     = 'menu_vault'
-        CurrentActionMsg  = _U('open_vault')
-        CurrentActionData = {}
-      end
-    )
-  end
-end
-
-function OpenGetStocksMenu()
-  ESX.TriggerServerCallback('esx_convoyeurjob:getStockItems', function(items)
+function OpenGetDrawerStocksMenu()
+  ESX.TriggerServerCallback('esx_convoyeurjob:getDrawerStockItems', function(items)
     print(json.encode(items))
     local elements = {}
     for i=1, #items, 1 do
-      table.insert(elements, {label = 'x' .. items[i].count .. ' ' .. items[i].label, value = items[i].name})
+      local item = items[i]
+      if item.count > 0 then
+        table.insert(elements, {label = item.label .. ' x' .. item.count, type = 'item_standard', value = item.name})
+      end
     end
     ESX.UI.Menu.Open(
-      'default', GetCurrentResourceName(), 'stocks_menu',
+      'default', GetCurrentResourceName(), 'stocks_drawer_menu',
       {
-        title    = _U('banker_stock'),
+        title    = _U('drawer_inventory'),
         elements = elements
       },
       function(data, menu)
         local itemName = data.current.value
         ESX.UI.Menu.Open(
-          'dialog', GetCurrentResourceName(), 'stocks_menu_get_item_count',
+          'dialog', GetCurrentResourceName(), 'stocks_drawer_menu_get_item_count',
           {
             title = _U('quantity')
           },
           function(data2, menu2)
-
             local count = tonumber(data2.value)
-
             if count == nil then
               ESX.ShowNotification(_U('invalid_quantity'))
             else
               menu2.close()
               menu.close()
-              OpenGetStocksMenu()
-
-              TriggerServerEvent('esx_convoyeurjob:getStockItem', itemName, count)
+              OpenGetDrawerStocksMenu()
+              TriggerServerEvent('esx_convoyeurjob:getDrawerStockItem', itemName, count)
             end
           end,
           function(data2, menu2)
@@ -447,7 +444,7 @@ function OpenGetStocksMenu()
   end)
 end
 
-function OpenPutStocksMenu()
+function OpenPutDrawerStocksMenu()
 ESX.TriggerServerCallback('esx_convoyeurjob:getPlayerInventory', function(inventory)
     local elements = {}
     for i=1, #inventory.items, 1 do
@@ -457,15 +454,15 @@ ESX.TriggerServerCallback('esx_convoyeurjob:getPlayerInventory', function(invent
       end
     end
     ESX.UI.Menu.Open(
-      'default', GetCurrentResourceName(), 'stocks_menu',
+      'default', GetCurrentResourceName(), 'stocks_drawer_menu',
       {
-        title    = _U('inventory'),
+        title    = _U('drawer_inventory'),
         elements = elements
       },
       function(data, menu)
         local itemName = data.current.value
         ESX.UI.Menu.Open(
-          'dialog', GetCurrentResourceName(), 'stocks_menu_put_item_count',
+          'dialog', GetCurrentResourceName(), 'stocks_drawer_menu_put_item_count',
           {
             title = _U('quantity')
           },
@@ -476,8 +473,9 @@ ESX.TriggerServerCallback('esx_convoyeurjob:getPlayerInventory', function(invent
             else
               menu2.close()
               menu.close()
-              OpenPutStocksMenu()
-              TriggerServerEvent('esx_convoyeurjob:putStockItems', itemName, count)
+              OpenPutDrawerStocksMenu()
+
+              TriggerServerEvent('esx_convoyeurjob:putDrawerStockItems', itemName, count)
             end
           end,
           function(data2, menu2)
@@ -503,7 +501,7 @@ function OpenGetWeaponMenu()
     ESX.UI.Menu.Open(
       'default', GetCurrentResourceName(), 'vault_get_weapon',
       {
-        title    = _U('get_weapon_menu'),
+        title    = _U('weapon_menu'),
         align    = 'top-left',
         elements = elements,
       },
@@ -534,14 +532,12 @@ function OpenPutWeaponMenu()
   ESX.UI.Menu.Open(
     'default', GetCurrentResourceName(), 'vault_put_weapon',
     {
-      title    = _U('put_weapon_menu'),
+      title    = _U('weapon_menu'),
       align    = 'top-left',
       elements = elements,
     },
     function(data, menu)
-
       menu.close()
-
       ESX.TriggerServerCallback('esx_convoyeurjob:addVaultWeapon', function()
         OpenPutWeaponMenu()
       end, data.current.value)
@@ -563,13 +559,11 @@ AddEventHandler('esx_convoyeurjob:hasEnteredMarker', function (zone)
     CurrentActionMsg = Config.Zones.Cloakroom.hint
     CurrentActionData = {}
   end
-    if Config.EnableVaultManagement then
-      if zone == 'Vaults' then
-        CurrentAction     = 'menu_vault'
-        CurrentActionMsg  = _U('open_vault')
-        CurrentActionData = {}
-      end
-    end
+  if zone == 'bankerStockActions' then
+    CurrentAction     = 'banker_drawer_stock_menu'
+    CurrentActionMsg  = _U('open_banque_actions')
+    CurrentActionData = {}
+  end
   if zone == 'VehicleSpawner' then
     CurrentAction = 'vehiclespawn_menu'
     CurrentActionMsg = Config.Zones.VehicleSpawner.hint
@@ -737,15 +731,17 @@ Citizen.CreateThread(function()
 				  if CurrentAction == 'bank_actions_menu' then
 					  OpenBankActionsMenu()
 				  end
-          if CurrentAction == 'menu_vault' then
-            OpenVaultMenu()
-          end
+				  
           if CurrentAction == 'cloakroom_menu' then
             if IsPedInAnyVehicle(playerPed, 0) then
                 ESX.ShowNotification(_U('in_vehicle'))
             else
               CloakRoomMenu()
             end
+          end
+		  
+		  if CurrentAction == 'banker_drawer_stock_menu' then
+             OpenBankerDrawerActionsMenu()
           end
           if CurrentAction == 'vehiclespawn_menu' then
             if IsPedInAnyVehicle(playerPed, 0) then

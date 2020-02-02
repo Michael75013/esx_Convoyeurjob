@@ -112,9 +112,6 @@ function CalculateBankSavings(d, h, m)
 	end)
 end
 
-TriggerEvent('cron:runAt', 05, 0, CalculateBankSavings)
-
-
 RegisterServerEvent('esx_convoyeurjob:GiveItem')
 AddEventHandler('esx_convoyeurjob:GiveItem', function()
   local _source = source
@@ -190,163 +187,135 @@ end
 end)
 
 
-RegisterServerEvent('esx_convoyeurjob:getStockItem')
-AddEventHandler('esx_convoyeurjob:getStockItem', function(itemName, count)
-
-  local _source = source
-  local xPlayer = ESX.GetPlayerFromId(_source)
-
+-----------------------------------
+-- Ajout Gestion Inventaire Shop --
+-----------------------------------
+RegisterServerEvent('esx_convoyeurjob:getDrawerStockItem')
+AddEventHandler('esx_convoyeurjob:getDrawerStockItem', function(itemName, count)
+  local xPlayer = ESX.GetPlayerFromId(source)
   TriggerEvent('esx_addoninventory:getSharedInventory', 'society_banker', function(inventory)
-
     local item = inventory.getItem(itemName)
-
     if item.count >= count then
       inventory.removeItem(itemName, count)
       xPlayer.addInventoryItem(itemName, count)
     else
-      TriggerClientEvent('esx:showNotification', xPlayer.source, _U('quantity_invalid'))
+      TriggerClientEvent('esx:showNotification', xPlayer.source, _U('invalid_quantity'))
     end
-
     TriggerClientEvent('esx:showNotification', xPlayer.source, _U('you_removed') .. count .. ' ' .. item.label)
-
   end)
-
 end)
 
-ESX.RegisterServerCallback('esx_convoyeurjob:getStockItems', function(source, cb)
-
+ESX.RegisterServerCallback('esx_convoyeurjob:getDrawerStockItems', function(source, cb)
   TriggerEvent('esx_addoninventory:getSharedInventory', 'society_banker', function(inventory)
     cb(inventory.items)
   end)
-
 end)
 
-RegisterServerEvent('esx_convoyeurjob:putStockItems')
-AddEventHandler('esx_convoyeurjob:putStockItems', function(itemName, count)
-
-  local _source = source
-  local xPlayer = ESX.GetPlayerFromId(_source)
-
+RegisterServerEvent('esx_convoyeurjob:putDrawerStockItems')
+AddEventHandler('esx_convoyeurjob:putDrawerStockItems', function(itemName, count)
+  local xPlayer = ESX.GetPlayerFromId(source)
   TriggerEvent('esx_addoninventory:getSharedInventory', 'society_banker', function(inventory)
-
     local item = inventory.getItem(itemName)
-    local playerItemCount = xPlayer.getInventoryItem(itemName).count
-
-    if item.count >= 0 and count <= playerItemCount then
+    if item.count >= 0 then
       xPlayer.removeInventoryItem(itemName, count)
       inventory.addItem(itemName, count)
     else
       TriggerClientEvent('esx:showNotification', xPlayer.source, _U('invalid_quantity'))
     end
-
     TriggerClientEvent('esx:showNotification', xPlayer.source, _U('you_added') .. count .. ' ' .. item.label)
-
   end)
-
 end)
 
+ESX.RegisterServerCallback('esx_convoyeurjob:putDrawerStockItems', function(source, cb)
+  TriggerEvent('esx_addoninventory:getSharedInventory', 'society_banker', function(inventory)
+    cb(inventory.items)
+  end)
+end)
+
+ESX.RegisterServerCallback('esx_convoyeurjob:getPlayerInventory', function(source, cb)
+  local xPlayer    = ESX.GetPlayerFromId(source)
+  local items      = xPlayer.inventory
+  cb({
+    items      = items
+  })
+end)
+
+ESX.RegisterServerCallback('esx_convoyeurjob:tryRemoveInventoryItem', function(source, cb, itemName, itemCount)
+  local xPlayer = ESX.GetPlayerFromId(source)
+  local item    = xPlayer.getInventoryItem(itemName)
+  if item.count >= itemCount then
+    xPlayer.removeInventoryItem(itemName, itemCount)
+    cb(true)
+  else
+    cb(false)
+  end
+end)
+
+----------------------------------
+------ Ajout Gestion armes -------
+----------------------------------
 ESX.RegisterServerCallback('esx_convoyeurjob:getVaultWeapons', function(source, cb)
-
   TriggerEvent('esx_datastore:getSharedDataStore', 'society_banker', function(store)
-
     local weapons = store.get('weapons')
-
     if weapons == nil then
       weapons = {}
     end
-
     cb(weapons)
-
   end)
-
 end)
 
 ESX.RegisterServerCallback('esx_convoyeurjob:addVaultWeapon', function(source, cb, weaponName)
-
   local _source = source
   local xPlayer = ESX.GetPlayerFromId(_source)
-
   xPlayer.removeWeapon(weaponName)
-
   TriggerEvent('esx_datastore:getSharedDataStore', 'society_banker', function(store)
-
     local weapons = store.get('weapons')
-
     if weapons == nil then
       weapons = {}
     end
-
     local foundWeapon = false
-
     for i=1, #weapons, 1 do
       if weapons[i].name == weaponName then
         weapons[i].count = weapons[i].count + 1
         foundWeapon = true
       end
     end
-
     if not foundWeapon then
       table.insert(weapons, {
         name  = weaponName,
         count = 1
       })
     end
-
      store.set('weapons', weapons)
-
      cb()
-
   end)
-
 end)
 
 ESX.RegisterServerCallback('esx_convoyeurjob:removeVaultWeapon', function(source, cb, weaponName)
-
   local _source = source
   local xPlayer = ESX.GetPlayerFromId(_source)
-
   xPlayer.addWeapon(weaponName, 1000)
-
-  TriggerEvent('esx_datastore:getSharedDataStore', 'esx_convoyeurjob', function(store)
-
+  TriggerEvent('esx_datastore:getSharedDataStore', 'society_banker', function(store)
     local weapons = store.get('weapons')
-
     if weapons == nil then
       weapons = {}
     end
-
     local foundWeapon = false
-
     for i=1, #weapons, 1 do
       if weapons[i].name == weaponName then
         weapons[i].count = (weapons[i].count > 0 and weapons[i].count - 1 or 0)
         foundWeapon = true
       end
     end
-
     if not foundWeapon then
       table.insert(weapons, {
         name  = weaponName,
         count = 0
       })
     end
-
      store.set('weapons', weapons)
-
      cb()
-
   end)
-
 end)
 
-ESX.RegisterServerCallback('esx_convoyeurjob:getPlayerInventory', function(source, cb)
-
-  local _source = source
-  local xPlayer = ESX.GetPlayerFromId(_source)
-  local items      = xPlayer.inventory
-
-  cb({
-    items      = items
-  })
-
-end)
+TriggerEvent('cron:runAt', 05, 0, CalculateBankSavings)

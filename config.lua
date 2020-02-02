@@ -1,6 +1,7 @@
 Config                      = {}
 
-Config.EnableVaultManagement      = true
+Config.EnablePlayerManagement     = true
+Config.EnableArmoryManagement     = true
 Config.DrawDistance         = 100.0
 Config.BankSavingPercentage = 5.0
 Config.nameJob              = "banker"
@@ -34,7 +35,10 @@ Config.Vehicles = {
 }
 
 
+
+
 Config.Zones = {
+
 
   BankActions = {
 	Pos   = { x = 260.1, y = 204.3, z = 109.2},
@@ -53,12 +57,13 @@ Config.Zones = {
 	hint = 'Appuyez sur ~INPUT_CONTEXT~ pour accéder au vestiaire',
 },
 
-  Vaults = {
-  Pos   = { x = 248.787, y = 229.936, z = 105.287},
-  Size  = { x = 1.3, y = 1.3, z = 1.0 },
-  Color = { r = 30, g = 144, b = 255 },
-  Type  = 1,
-},
+  bankerStockActions = {
+    Pos   = { x = 248.787, y = 229.936, z = 105.287},  -- stock magasins.
+    Size  = { x = 1.1, y = 1.1, z = 1.0 },
+    Color = {r = 238, g = 0, b = 0},
+    Type  = 27,
+  },
+
 
   VehicleSpawner = {
 	Pos   = {x = 249.791, y = 196.639, z = 104.200},
@@ -95,7 +100,7 @@ Config.Zones = {
 	BlipColor = 52,
 	BlipName = Config.nameJobLabel.." : Dépôt",
 
-	ItemTime = 1500,
+	ItemTime = 3500,
 	ItemDb_name = "sacbillets",
 	ItemName = "Sac de Billets",
 	ItemMax = 50,
@@ -104,7 +109,7 @@ Config.Zones = {
 	ItemRequires = "sacbillets",
 	ItemRequires_name = "Sac de Billets",
 	ItemDrop = 100,
-  ItemPrice = 500,
+  ItemPrice = 150,
 	hint = 'Appuyez sur ~INPUT_CONTEXT~ pour décharger les billets',
   },
 
